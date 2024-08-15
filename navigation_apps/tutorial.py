@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import base64
+
 def head():
     """
     Displays the header and the logo of the application
@@ -16,49 +17,60 @@ def head():
     except FileNotFoundError:
         st.error("Logo file not found")
 
-
-    st.markdown("""
-        <h3 style='text-align: center;'>Instruções de Atualização de Dados <br> Alunos e Olimpíadas</h3>
-        <ol>
-            <li>
-                Na barra lateral à esquerda, você encontrará duas opções de atualização para diferentes bancos de dados:
-                <ul>
-                    <li>
-                        <strong>Alunos e Olimpíadas</strong>: refere-se aos bancos de dados que contêm informações relacionadas a ambos, como gênero, LinkedIn, escola, cidade, medalha, série, entre outras.
-                        <br>Para escolher essa opção, clique nela e a página do formulário de atualização será aberta em seguida.
-                    </li>
-                </ul>
-            </li>
-            <li>
-                Em primeiro lugar, escolha qual banco de dados você deseja modificar:
-                <ul>
-                    <li><strong>Alunos</strong>: para modificar gênero, LinkedIn e bio do LinkedIn.</li>
-                    <li><strong>Olimpíadas</strong>: para modificar escola, cidade, estado, medalha, série, ano, entre outros.</li>
-                </ul>
-            </li>
-            <li>
-                Preencha o campo com o nome completo do aluno. Caso ocorra algum erro de digitação, serão sugeridos 3 nomes que mais se assemelham ao digitado.
-            </li>
-            <li>
-                Selecione o campo que deseja editar nos dados do aluno. Para modificar mais de um campo, basta fazer um de cada vez. Exemplo:
-                <ul>
-                    <li>
-                        Para editar tanto o gênero quanto o LinkedIn do aluno:
-                        <ul>
-                            <li>Após digitar o nome completo e o aluno ser encontrado, escolha o campo "Gênero" para editar e insira o novo valor.</li>
-                            <li>Clique em “Atualizar aluno”. Uma mensagem confirmando o sucesso da operação aparecerá.</li>
-                            <li>Em seguida, selecione o campo "LinkedIn", insira o novo valor e clique novamente em “Atualizar aluno”.</li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                Ao finalizar todas as operações, clique em “Salvar” para que as alterações sejam registradas no banco de dados.
-            </li>
-        </ol>
-    """, unsafe_allow_html=True)
+    st.markdown(""" <div style="text-align: center; font-size: 21px; margin: 20px;"> <strong>  
+                        Você pode baixar o arquivo de tutorial de uso abaixo!
+                        Também são encontrados dois arquivos Excel para uso apenas na atualização de Entrevistas e adição de novos dados de olimpíadas!
+                        <br></div>""", unsafe_allow_html=True)
 
 
+
+    # Caminhos dos arquivos
+    pdf_filename = "./utils/Tutorial de uso.pdf"
+    xlsx_filename1 = "./utils/dbOlimpiadas_EXEMPLO.xlsx"
+    xlsx_filename2 = "./utils/dEntrevistas_EXEMPLO.xlsx"
+
+    # Leitura do arquivo PDF
+    with open(pdf_filename, "rb") as pdf_file:
+        pdf_content = pdf_file.read()
+
+    # Leitura do primeiro arquivo .xlsx
+    with open(xlsx_filename1, "rb") as xlsx_file1:
+        xlsx_content1 = xlsx_file1.read()
+
+    # Leitura do segundo arquivo .xlsx
+    with open(xlsx_filename2, "rb") as xlsx_file2:
+        xlsx_content2 = xlsx_file2.read()
+
+    # Dividindo a tela em três colunas
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        # Caixa para baixar o PDF
+        st.download_button(
+            label="Baixar Tutorial de uso",
+            data=pdf_content,
+            file_name="Tutorial de uso.pdf",
+            mime='application/pdf'
+        )
+
+    with col2:
+        # Caixa para baixar o primeiro arquivo .xlsx
+        st.download_button(
+            label="Baixar Excel de Olimpíadas",
+            data=xlsx_content1,
+            file_name="dbOlimpiadas_EXEMPLO.xlsx",
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+    with col3:
+        # Caixa para baixar o segundo arquivo .xlsx
+        st.download_button(
+            label="Baixar Excel de Entrevistas",
+            data=xlsx_content2,
+            file_name="dEntrevistas_EXEMPLO.xlsx",
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    st.markdown(""" <div style="text-align: center; font-size: 21px; margin: 20px;"> <strong>  
+                            OBS: em caso de problemas para utilizar o site, tente primeiramente recarrega-lo, caso isso não resolva, tente contatar algum responsável pelo projeto.
+                            <br></div>""", unsafe_allow_html=True)
 head()
-
-

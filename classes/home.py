@@ -22,6 +22,14 @@ def head():
     st.markdown(""" <div style="text-align: center; font-size: 21px; margin: 20px;"> <strong>  
                     Para atualizar algum banco de dados, veja a barra lateral. Você será redirecionado para a página de atualização correspondente. <br>
                     <br></div>""", unsafe_allow_html=True)
+
+    st.markdown(""" <div style="text-align: center; font-size: 21px; margin: 20px;"> <strong>  
+                        1. Um tutorial de uso pode ser encontrado na aba "Como usar" <br>
+                        2. Para atualizar informações sobre os alunos ou olimpíadas, clique em "Alunos e Olimpíadas"<br>
+                        3. Para atualizar as entrevistas (adicionar novas entrevistas ou sobreescrever entrevistas existentes) clique em "Entrevistas"<br>
+                        4. Para adicionar novos dados de olimpíadas, clique em "Adicionar novas olimpíadas"<br>
+                        <br></div>""", unsafe_allow_html=True)
+
 head()
 
 

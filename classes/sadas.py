@@ -3,6 +3,7 @@ from utils.utils import head_db as head
 from classes.db_manager import DatabaseManager
 from utils.utils import CacheManager
 from classes.gclient import GoogleClient
+import uuid
 
 class StudentApp:
     def __init__(self):
@@ -45,44 +46,19 @@ class StudentApp:
         """
         columns_to_drop = ['Nome', 'Escola_Original', 'IDAluno', 'IndicePrivilegio', 'Olimpíada', 'IndiceDesempenho']
         columns_to_drop = [col for col in columns_to_drop if col in df.columns]
-
-        st_rows = df[df['Nome'] == student_name]
-        if len(st_rows) > 1:
-            st_rows = st_rows.sort_values(by=['Ano'])
         if st.session_state.db.check_student(student_name):
             st.subheader("⏫ Selecione a coluna para editar e insira o novo valor:")
             with st.form(key='update_form'):
-                if len(st_rows) > 1:
-                    st.write(f"Foram encontradas {len(st_rows)} entradas para o aluno {student_name}.")
-                    line = st.selectbox(
-                        "Selecione qual linha para editar:",
-                        st_rows.apply(
-                            lambda row: f"{row['Nome']} - {row['Olimpíada']} - {row['Medalha']} - {row['Ano']}", axis=1)
-                    )
-                    selected_index = st_rows.index[st_rows.apply(
-                        lambda row: f"{row['Nome']} - {row['Olimpíada']} - {row['Medalha']} - {row['Ano']}",
-                        axis=1) == line][0]
-                else:
-                    selected_index = st_rows.index[0]
-
                 column = st.selectbox("Selecione a coluna para editar:", df.drop(columns=columns_to_drop).columns)
                 new_value = st.text_input("Insira o novo valor:")
                 submit_button = st.form_submit_button(label='Atualizar aluno')
 
                 if submit_button and new_value:
-                    row = selected_index
+                    row = df.index[df['Nome'] == student_name][0]
                     col = df.columns.get_loc(column)
-                    backlog.append({
-                        "row": int(row),
-                        "col": int(col),
-                        "value": new_value,
-                        "old_value": df.loc[row, column],
-                        "column": column,
-                        "student_name": student_name
-                    })
-                    df.loc[row, column] = new_value
+                    backlog.append({"row": int(row), "col": int(col), "value": new_value, "old_value": df.loc[row, column], "column": column, "student_name": student_name})
+                    df.loc[df['Nome'] == student_name, column] = new_value
                     st.success(f"As informações do aluno {student_name} foram atualizadas com sucesso!")
-
         return df, backlog
 
     def main(self):
@@ -97,9 +73,17 @@ class StudentApp:
         spread_name = st.secrets[db]["filename"]
         backup_ID = st.secrets["folders"]["backup_folderID"]
 
+        if 'df' not in st.session_state or st.session_state.df is None:
+            if st.button('Carregar Dados'):
+                try:
+                    st.session_state.db = DatabaseManager(spread_name, client=self.google_client.client)
+                    st.session_state.df = st.session_state.db.df
+                    st.session_state.backlog = st.session_state.db.backlog
+                except Exception as e:
+                    st.error(f"Erro ao carregar dados: {e}")
 
         if 'df' not in st.session_state or st.session_state.df is None:
-            if st.button('Carregar Dados', key='load_data'):
+            if st.button('Carregar Dados'):
                 try:
                     st.session_state.db = DatabaseManager(spread_name, client=self.google_client.client)
                     st.session_state.df = st.session_state.db.df
@@ -149,5 +133,5 @@ class StudentApp:
                     for suggestion in suggestions:
                         st.markdown(f"**{suggestion.rstrip()}**")
 
-        if st.button('Cancelar', key='cancel_button'):
+        if st.button('Cancelar'):
             CacheManager.clear_cache()

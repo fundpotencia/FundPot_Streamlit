@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from utils.utils import head_ev as head, CacheManager
+from utils.utils import head_new_data as head, CacheManager
 from classes.db_manager import DatabaseManager
 from classes.gclient import GoogleClient
 
@@ -54,18 +54,19 @@ class StudentApp:
                 new_entries = tabela[~tabela.apply(tuple, 1).isin(st.session_state.df_cloud.apply(tuple, 1))]
 
                 if new_entries.empty:
-                    st.warning("Nenhum novo registro foi encontrado para adicionar ao banco de dados.")
+                    st.warning("#### Nenhum novo registro foi encontrado para adicionar ao banco de dados.")
                 else:
-                    st.markdown('Os novos registros que serão adicionados ao banco de dados são:')
+                    st.markdown('##### Os novos registros que serão adicionados ao banco de dados são:')
                     st.dataframe(new_entries)
 
                     # Exibir uma amostra dos novos dados que serão adicionados
                     final_df = pd.concat([st.session_state.df_cloud, new_entries]).sort_values(
                         by='Nome').reset_index(drop=True)
 
-                    st.markdown('Os 10 últimos elementos da database ficarão assim:')
+                    st.markdown('##### O Database final é mostrado abaixo. Caso queira, é possivel pesquisar por nomes no database pela lupa no canto superior direito.')
                     st.dataframe(final_df)
-                    st.markdown('Verifique se não há nada fora do padrão...')
+                    st.markdown(
+                        '##### Caso esteja tudo em conformidade com o esperado, clique no botão **Salvar**. Caso contrário, cancele a operação.')
 
                     if st.button('Salvar'):
                         st.session_state.df = self.format_df(final_df)

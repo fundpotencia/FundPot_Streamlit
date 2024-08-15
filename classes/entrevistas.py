@@ -41,23 +41,23 @@ class StudentApp:
 
         try:
             if tabela is not None:
-                st.success("Os nomes das colunas foram encontrados no database! Clique em continuar novamente.")
+                st.success("O arquivo passado possui formato correto!")
 
                 intersection_names = pd.DataFrame(
                     {'Nome': list(
                         set(st.session_state.db_manager.df['Nome'].dropna()) & set(tabela['Nome'].dropna()))})
 
                 if not intersection_names.empty:
-                    st.markdown('Os seguintes nomes estão duplicados:')
+                    st.markdown('##### Os seguintes nomes estão duplicados:')
                     st.dataframe(intersection_names)
-                    st.markdown('As informações repetidas do primeiro serão sobrepostas com as do segundo')
+                    st.markdown('#### As informações repetidas serão sobrepostas com as informações passadas no arquivo enviado')
 
                 merged_df = pd.concat([st.session_state.db_manager.df, tabela]).drop_duplicates('Nome', keep='last')
                 merged_df = merged_df.sort_values(by='IDPessoa').reset_index(drop=True).dropna(subset=['Nome'])
 
-                st.markdown('Os 10 últimos elementos da database ficarão assim:')
+                st.markdown('##### Confira o database final de entrevistas:')
                 st.dataframe(merged_df)
-                st.markdown('Verifique se não há nada fora do padrão...')
+                st.markdown('##### Caso esteja tudo em conformidade com o esperado, clique no botão **Salvar**. Caso contrário, cancele a operação.')
 
                 if st.button('Salvar'):
                     st.session_state.df = self.format_df(merged_df)
