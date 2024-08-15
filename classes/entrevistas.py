@@ -24,6 +24,8 @@ class StudentApp:
 
         if 'df' not in st.session_state:
             st.session_state.df = None
+        st.markdown("<h1 style='text-align: center; font-size: 30px;'><br>🌐 Atualização de informações 🌐</h1>",
+                    unsafe_allow_html=True)
 
         with st.form("input_user"):
             uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx", "xls"])

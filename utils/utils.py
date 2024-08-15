@@ -66,11 +66,9 @@ def head_ev():
         """ <div style="text-align: center; font-size: 20px;"> Nessa página, é possível adicionar/alterar informações referentes às entrevistas no banco de dados adicionando um arquivo excel com as informações no mesmo padrão do arquivo excel de entrevistas original</div>""",
         unsafe_allow_html=True)
 
-    st.markdown("<h1 style='text-align: center; font-size: 30px;'><br>🌐 Atualização de informações 🌐</h1>",
-                unsafe_allow_html=True)
 
 def head_new_data():
-    st.set_page_config(page_title="Entrevistas", page_icon="🎤")
+    st.set_page_config(page_title="Adicionar Olimpíadas", page_icon="📁")
     with open('./utils/front.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     try:
