@@ -11,8 +11,14 @@ class StudentApp:
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
         ])
+        self.id = 'add_entrevistas'
 
     def main(self):
+        if 'id' not in st.session_state:
+            st.session_state.id = self.id
+        if self.id != st.session_state.id:
+            CacheManager.clear_cache()
+            st.session_state.id = self.id
         head()
         db = 'dEntrevistas'
         spread_name = st.secrets[db]["filename"]
@@ -26,15 +32,15 @@ class StudentApp:
             st.session_state.df = None
         st.markdown("<h1 style='text-align: center; font-size: 30px;'><br>🌐 Atualização de informações 🌐</h1>",
                     unsafe_allow_html=True)
-
         with st.form("input_user"):
             uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx", "xls"])
             st.form_submit_button('Continuar')
 
             try:
                 tabela = pd.read_excel(uploaded_file)
-                if st.session_state.df is None:
+                if st.session_state.df is None or not tabela.equals(st.session_state.df):
                     st.session_state.df = tabela
+                    st.success("Tabela carregada com sucesso!")
             except Exception as e:
                 if uploaded_file is not None:
                     st.error(f"Erro ao ler o arquivo Excel: {e}")
@@ -42,7 +48,7 @@ class StudentApp:
                     st.warning("Por favor, insira um arquivo Excel (formatos: .xlsx ou .xls).")
 
         try:
-            if tabela is not None:
+            if tabela is not None and st.session_state.df_cloud.columns.equals(tabela.columns):
                 st.success("O arquivo passado possui formato correto!")
 
                 intersection_names = pd.DataFrame(
@@ -70,10 +76,14 @@ class StudentApp:
                     CacheManager.clear_cache()
                     st.session_state.clear()
                     st.rerun()
+            if not st.session_state.df_cloud.columns.equals(st.session_state.df.columns):
+                st.error(f"Erro: As colunas do arquivo passado não são iguais às colunas do database. "
+                         f"Por favor, verifique se o arquivo passado possui as colunas corretas. Caso seja necessário, a página *Como Usar* possui um tutorial de uso bem como o arquivo base para adicionar entrevistas.")
 
         except Exception as e:
-            if uploaded_file is not None:
+            if uploaded_file is not None and 'df_cloud' in st.session_state:
                 st.error(f"Erro ao processar tabela: {e}")
+
 
     def format_df(self, df):
         df.sort_values(by='IDPessoa', inplace=True)

@@ -5,6 +5,7 @@ from classes.db_manager import DatabaseManager
 from classes.gclient import GoogleClient
 
 
+
 class StudentApp:
     def __init__(self):
         self.cred_keys = st.secrets["gcp_service_account"]
@@ -12,10 +13,16 @@ class StudentApp:
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
         ])
+        self.id = 'add_olimpiadas'
 
     def main(self):
+        if 'id' not in st.session_state:
+            st.session_state.id = self.id
+        if self.id != st.session_state.id:
+            CacheManager.clear_cache()
+            st.session_state.id = self.id
         head()
-        db = 'DB_Olimpiadas_Sprint3'
+        db = 'DB_Olimpiadas'
         spread_name = st.secrets[db]["filename"]
         backup_ID = st.secrets["folders"]["backup_folderID"]
 
@@ -32,8 +39,9 @@ class StudentApp:
 
             try:
                 tabela = pd.read_excel(uploaded_file)
-                if st.session_state.df is None:
+                if st.session_state.df is None or not tabela.equals(st.session_state.df):
                     st.session_state.df = tabela
+                    st.success("Tabela carregada com sucesso!")
             except Exception as e:
                 if uploaded_file is not None:
                     st.error(f"Erro ao ler o arquivo Excel: {e}")
@@ -41,16 +49,10 @@ class StudentApp:
                     st.warning("Por favor, insira um arquivo Excel (formatos: .xlsx ou .xls).")
 
         try:
-            if tabela is not None:
+            if tabela is not None and st.session_state.df_cloud.columns.equals(st.session_state.df.columns):
                 st.success("Os nomes das colunas foram encontrados no database! Clique em continuar novamente.")
-
-                # Concatenar DataFrames
                 merged_df = pd.concat([st.session_state.df_cloud, tabela], ignore_index=True)
-
-                # Identificar duplicatas considerando todas as colunas
                 duplicate_mask = merged_df.duplicated(keep=False)
-
-                # Filtrar as novas entradas que não são duplicadas
                 new_entries = tabela[~tabela.apply(tuple, 1).isin(st.session_state.df_cloud.apply(tuple, 1))]
 
                 if new_entries.empty:
@@ -77,9 +79,11 @@ class StudentApp:
                         CacheManager.clear_cache()
                         st.session_state.clear()
                         st.rerun()
-
+            if not st.session_state.df_cloud.columns.equals(st.session_state.df.columns):
+                st.error(f"Erro: As colunas do arquivo passado não são iguais às colunas do database. "
+                         f"Por favor, verifique se o arquivo passado possui as colunas corretas. Caso seja necessário, a página *Como Usar* possui um tutorial de uso bem como o arquivo base para adicionar olimpíadas.")
         except Exception as e:
-            if uploaded_file is not None:
+            if uploaded_file is not None and 'df_cloud' in st.session_state:
                 st.error(f"Erro ao processar tabela: {e}")
 
     def format_df(self, df):

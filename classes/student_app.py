@@ -11,13 +11,14 @@ class StudentApp:
         """
         self.sheet_name_map = {
             'Alunos (gênero, LinkedIn...)': 'dAlunos',
-            'Premiações (escola, cidade, medalha, série...)': 'DB_Olimpiadas_Sprint3'
+            'Premiações (escola, cidade, medalha, série...)': 'DB_Olimpiadas'
         }
         self.cred_keys = st.secrets["gcp_service_account"]
         self.google_client = GoogleClient(self.cred_keys, scopes=[
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
         ])
+        self.id = 'dalunos_olimp'
 
     def display_student_info(self, student_name, width=800):
         """
@@ -43,7 +44,7 @@ class StudentApp:
         :return: Updated dataframe and backlog.
         :rtype: tuple
         """
-        columns_to_drop = ['Nome', 'Escola_Original', 'IDAluno', 'IndicePrivilegio', 'Olimpíada', 'IndiceDesempenho']
+        columns_to_drop = ['IDAluno', 'IndicePrivilegio', 'IndiceDesempenho', 'IndiceTriagem']
         columns_to_drop = [col for col in columns_to_drop if col in df.columns]
 
         st_rows = df[df['Nome'] == student_name]
@@ -89,6 +90,12 @@ class StudentApp:
         """
         Main function to run the Streamlit app.
         """
+        if 'id' not in st.session_state:
+            st.session_state.id = self.id
+        if self.id != st.session_state.id:
+            CacheManager.clear_cache()
+            st.session_state.id = self.id
+
         head()
 
         st.subheader("➡️ Selecione o database abaixo:")
@@ -107,15 +114,15 @@ class StudentApp:
                     st.session_state.spread_name = spread_name
                 except Exception as e:
                     st.error(f"Erro ao carregar dados: {e}")
+        if 'backlog' not in st.session_state:
+            st.session_state.backlog = []
 
         if 'df' in st.session_state and st.session_state.df is not None:
             df = st.session_state.df
             backlog = st.session_state.backlog
 
-            columns_to_drop = ['IDAluno', 'IndicePrivilegio', 'IndiceDesempenho']
-            columns_to_drop = [col for col in columns_to_drop if col in df.columns]
             st.subheader("🗂️ Database carregado:")
-            st.dataframe(df.drop(columns=columns_to_drop).reset_index(drop=True), height=250, width=800)
+            st.dataframe(df.reset_index(drop=True), height=250, width=800)
 
             st.subheader("📝 Atualização de dados")
             with st.form("input_user"):
