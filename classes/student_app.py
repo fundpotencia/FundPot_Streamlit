@@ -90,13 +90,14 @@ class StudentApp:
         """
         Main function to run the Streamlit app.
         """
+        head()
+
         if 'id' not in st.session_state:
             st.session_state.id = self.id
         if self.id != st.session_state.id:
             CacheManager.clear_cache()
             st.session_state.id = self.id
 
-        head()
 
         st.subheader("➡️ Selecione o database abaixo:")
         option = st.selectbox('Database:', list(self.sheet_name_map.keys()), on_change=CacheManager.clear_cache)

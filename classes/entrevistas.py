@@ -14,12 +14,13 @@ class StudentApp:
         self.id = 'add_entrevistas'
 
     def main(self):
+        head()
+
         if 'id' not in st.session_state:
             st.session_state.id = self.id
         if self.id != st.session_state.id:
             CacheManager.clear_cache()
             st.session_state.id = self.id
-        head()
         db = 'dEntrevistas'
         spread_name = st.secrets[db]["filename"]
         backup_ID = st.secrets["folders"]["backup_folderID"]
